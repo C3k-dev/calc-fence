@@ -23,10 +23,9 @@ export default function Home() {
     gap: "",
   });
 
-  const [step, setStep] = useState(0); // 0 = выбор типа, 1 = ширина, 2 = высота, 3 = зазор
+  const [step, setStep] = useState(0);
   const { tg, isReady } = useTelegram();
 
-  // Проверка корректности заполнения текущего шага
   const isStepValid = () => {
     switch (step) {
       case 0:
@@ -43,13 +42,11 @@ export default function Home() {
   };
 
   const handleNext = () => {
-    if (isStepValid()) {
-      setStep(step + 1);
-    }
+    if (isStepValid()) setStep(step + 1);
   };
 
   const handleBack = () => {
-    // Сбрасываем значения текущего шага при возврате
+    // Сброс текущего шага
     switch (step) {
       case 1:
         setSize((prev) => ({ ...prev, width: "" }));
@@ -60,32 +57,33 @@ export default function Home() {
       case 3:
         setSize((prev) => ({ ...prev, gap: "" }));
         break;
-      default:
-        break;
     }
-
     if (step > 0) setStep(step - 1);
   };
 
   // MainButton Telegram
   useEffect(() => {
-    if (!isReady || !tg) return;
+    if (!isReady || !tg || !tg.MainButton) return;
 
-    // Скрываем кнопку сначала, чтобы обновления были видны
-    tg.MainButton.hide();
+    const updateButton = () => {
+      if (isStepValid()) {
+        tg.MainButton.setText("Продолжить");
+        tg.MainButton.enable();
+      } else {
+        tg.MainButton.setText("Заполните поле");
+        tg.MainButton.disable();
+      }
+      tg.MainButton.show();
+    };
 
-    // Устанавливаем текст в зависимости от валидности шага
-    tg.MainButton.setText(isStepValid() ? "Продолжить" : "Заполните поле");
-
-    // Показываем кнопку
-    tg.MainButton.show();
-
+    // Устанавливаем обработчик клика
     const onClick = () => {
       if (isStepValid()) handleNext();
-      else tg.MainButton.setText("Пожалуйста, заполните поле!");
     };
 
     tg.MainButton.onClick(onClick);
+
+    updateButton();
 
     return () => {
       tg.MainButton.offClick(onClick);
@@ -125,7 +123,7 @@ export default function Home() {
         />
       )}
 
-      {/* Кнопка назад остаётся обычной HTML */}
+      {/* Кнопка назад HTML */}
       <div style={{ marginTop: "20px" }}>
         {step > 0 && (
           <button
@@ -143,9 +141,7 @@ export default function Home() {
         <div><b>Тип:</b> {size.type || "-"}</div>
         <div><b>Длина:</b> {size.width || "-"} метров</div>
         <div><b>Высота:</b> {size.height || "-"} метров</div>
-        {size.type === "Штакетник" && (
-          <div><b>Зазор:</b> {size.gap || "-"} см</div>
-        )}
+        {size.type === "Штакетник" && <div><b>Зазор:</b> {size.gap || "-"} см</div>}
       </div>
     </div>
   );
