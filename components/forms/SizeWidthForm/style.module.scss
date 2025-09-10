@@ -1,24 +1,81 @@
 .sizeWidthForm {
-    &__headline {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        inset: 0;
+
+          &__headline {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding-inline: 24px;
+        gap: 32px;
+        padding: 24px 16px;
 
         p {
             font-size: 24px;
             font-weight: 500;
+            padding-inline: 16px;
         }
     }
 
-    &__input {
-        width: 100%;
-        font-size: 32px;
-        color: var(--text-primary);
-        background: none;
-        border: none;
-        outline: none;
+    &__form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+
+        &__format {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        &__field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            &__input {
+                width: 100%;
+                font-size: 64px;
+                font-weight: 600;
+                color: var(--text-primary);
+                text-align: center;
+                background: none;
+                border: none;
+                outline: none;
+
+                // Цвет курсора (мигающей линии)
+                caret-color: var(--background-button);
+
+                // Убираем стрелки в Chrome/Safari/Edge
+                &::-webkit-outer-spin-button,
+                &::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+
+                // Убираем стрелки в Firefox
+                &[type='number'] {
+                    -moz-appearance: textfield;
+                }
+            }
+
+            &__hint {
+                color: var(--text-secondary);
+                margin-top: 16px;
+            }
+        }
     }
+    }
+
 }
