@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./style.module.scss";
 import Icon from "@/components/Icon/Icon";
 
 interface SizeWidthFormProps {
-  widthMeters: string; // результат в метрах
+  widthMeters: string;
   onChange: (newSize: { width: string }) => void;
 }
 
@@ -13,61 +15,86 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [unit, setUnit] = useState<"meters" | "sotkas">("meters");
-  const [metersInput, setMetersInput] = useState<string>("");
-  const [sotkasInput, setSotkasInput] = useState<string>("");
+  const [metersInput, setMetersInput] = useState("");
+  const [sotkasInput, setSotkasInput] = useState("");
+  const [error, setError] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
-  // конвертация соток в метры
+  /** Убираем все нецифры */
+  const onlyDigits = (value: string) => value.replace(/\D/g, "");
+
+  /** Форматирование: 1000 → "1 000" */
+  const formatNumber = (value: string) =>
+    value ? Number(value).toLocaleString("ru-RU") : "";
+
+  /** Конвертация соток в метры */
   const convertSotkasToMeters = (sotkas: string) => {
     if (!sotkas) return "";
     return Math.ceil(Math.sqrt(Number(sotkas) * 100)).toString();
   };
 
-  // обработка изменения метров
-  const handleMetersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMetersInput(value);
-    onChange({ width: value });
+  /** Общий обработчик числовых полей */
+  const handleNumericChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "meters" | "sotkas"
+  ) => {
+    const raw = onlyDigits(e.target.value);
+
+    if (type === "meters") {
+      setMetersInput(raw);
+
+      if (!raw) {
+        setError("Введите длину");
+        onChange({ width: "" });
+        return;
+      }
+
+      const num = Number(raw);
+      if (num <= 0) setError("Длина должна быть больше 0");
+      else if (num > 10000) setError("Слишком большое значение");
+      else setError("");
+
+      onChange({ width: raw });
+    }
+
+    if (type === "sotkas") {
+      setSotkasInput(raw);
+      onChange({ width: convertSotkasToMeters(raw) });
+    }
   };
 
-  // обработка изменения соток
-  const handleSotkasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSotkasInput(value);
-    const meters = convertSotkasToMeters(value);
-    onChange({ width: meters });
+  /** Смена единицы */
+  const handleUnitChange = (selected: "meters" | "sotkas") => {
+    setUnit(selected);
   };
 
-  // смена единицы
-  const handleUnitChange = (selectedUnit: "meters" | "sotkas") => {
-    setUnit(selectedUnit);
-    // не очищаем поле полностью, оставляем введённое для удобства
-  };
-
-  // синхронизация при изменении props.widthMeters
+  /** Синхронизация с пропсами */
   useEffect(() => {
     if (unit === "meters") {
       setMetersInput(widthMeters);
     }
   }, [widthMeters, unit]);
 
-  // Автоматически фокусируем input при рендере
+  /** Автофокус с костылём для iOS */
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.click();
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className={styles.sizeWidthForm}>
       <div className={styles.sizeWidthForm__wrapper}>
         <div className={styles.sizeWidthForm__wrapper__headline}>
-          <Icon
+          {/* <Icon
             width={300}
             height={48}
             icon={"/300/width"}
             color="var(--background-button)"
-          />
-          <p>Длина забора, исключая ворота и калитки</p>
+          /> */}
+          <p>Длина забора, включая ворота и калитки</p>
         </div>
 
         <div className={styles.sizeWidthForm__wrapper__form}>
@@ -77,27 +104,32 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
                 <input
                   ref={inputRef}
                   className={styles.sizeWidthForm__wrapper__form__field__input}
-                  type="number"
-                  value={metersInput}
-                  onChange={handleMetersChange}
+                  type="tel" // ✅ цифровая клавиатура
+                  inputMode="numeric"
+                  value={formatNumber(metersInput)}
+                  onChange={(e) => handleNumericChange(e, "meters")}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   placeholder="0"
-                  min="0"
-                  step="0.01"
                 />
                 <p className={styles.sizeWidthForm__wrapper__form__field__hint}>
                   метров
                 </p>
+                {error && !isFocused && (
+                  <p className={styles.sizeWidthForm__wrapper__form__field__error}>
+                    {error}
+                  </p>
+                )}
               </div>
             ) : (
               <div>
                 <input
                   className={styles.sizeWidthForm__wrapper__form__field__input}
-                  type="number"
-                  value={sotkasInput}
-                  onChange={handleSotkasChange}
+                  type="tel" // ✅ цифровая клавиатура
+                  inputMode="numeric"
+                  value={formatNumber(sotkasInput)}
+                  onChange={(e) => handleNumericChange(e, "sotkas")}
                   placeholder="0"
-                  min="0"
-                  step="0.01"
                 />
                 <p className={styles.sizeWidthForm__wrapper__form__field__hint}>
                   {convertSotkasToMeters(sotkasInput || "")} метров
@@ -121,7 +153,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
                 checked={unit === "sotkas"}
                 onChange={() => handleUnitChange("sotkas")}
               />
-              Сотки
+              В сотках
             </label>
           </div>
         </div>
