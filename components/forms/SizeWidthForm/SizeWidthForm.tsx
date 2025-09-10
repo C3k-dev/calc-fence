@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./style.module.scss";
 import Icon from "@/components/Icon/Icon";
 
@@ -11,6 +11,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
   widthMeters,
   onChange,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [unit, setUnit] = useState<"meters" | "sotkas">("meters");
   const [metersInput, setMetersInput] = useState<string>("");
   const [sotkasInput, setSotkasInput] = useState<string>("");
@@ -49,6 +50,13 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
     }
   }, [widthMeters, unit]);
 
+  // Автоматически фокусируем input при рендере
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className={styles.sizeWidthForm}>
       <div className={styles.sizeWidthForm__wrapper}>
@@ -67,6 +75,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
             {unit === "meters" ? (
               <div>
                 <input
+                  ref={inputRef}
                   className={styles.sizeWidthForm__wrapper__form__field__input}
                   type="number"
                   value={metersInput}

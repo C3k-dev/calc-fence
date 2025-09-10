@@ -34,7 +34,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 32px;
         }
 
         &__field {
@@ -43,11 +42,13 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            margin-bottom: 32px;
 
             &__input {
                 width: 100%;
                 font-size: 64px;
                 font-weight: 600;
+                line-height: 100%;
                 color: var(--text-primary);
                 text-align: center;
                 background: none;
@@ -72,7 +73,7 @@
 
             &__hint {
                 color: var(--text-secondary);
-                margin-top: 16px;
+                margin-top: 8px;
             }
         }
     }
