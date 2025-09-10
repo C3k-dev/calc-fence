@@ -77,6 +77,8 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
     return () => clearTimeout(timer);
   }, []);
 
+  const isFieldActive = (value: string) => isFocused || !!value;
+
   return (
     <div className={styles.sizeWidthForm}>
       <div className={styles.sizeWidthForm__wrapper}>
@@ -85,6 +87,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
         </div>
 
         <div className={styles.sizeWidthForm__wrapper__form}>
+          {/* Выбор единицы */}
           <div className={styles.sizeWidthForm__wrapper__form__format}>
             <SelectButton
               name="В метрах"
@@ -98,9 +101,10 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
             />
           </div>
 
+          {/* Поле ввода */}
           <div className={styles.sizeWidthForm__wrapper__form__field}>
             {unit === "meters" ? (
-              <div>
+              <div className={styles.inputWrapper}>
                 <input
                   ref={inputRef}
                   className={`${styles.sizeWidthForm__wrapper__form__field__input} ${
@@ -115,13 +119,13 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
                   placeholder="0"
                   maxLength={5}
                 />
-                <p
-                  className={`${styles.sizeWidthForm__wrapper__form__field__hint} ${
-                    isFocused ? styles.focusedHint : ""
+                <label
+                  className={`${styles.floatingLabel} ${
+                    isFieldActive(metersInput) ? styles.activeLabel : ""
                   }`}
                 >
                   метров
-                </p>
+                </label>
                 <p
                   className={`${styles.sizeWidthForm__wrapper__form__field__error} ${
                     !error ? styles.hidden : ""
@@ -131,7 +135,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
                 </p>
               </div>
             ) : (
-              <div>
+              <div className={styles.inputWrapper}>
                 <input
                   className={`${styles.sizeWidthForm__wrapper__form__field__input} ${
                     error ? styles.errorInput : ""
@@ -143,13 +147,13 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
                   placeholder="0"
                   maxLength={4}
                 />
-                <p
-                  className={`${styles.sizeWidthForm__wrapper__form__field__hint} ${
-                    isFocused ? styles.focusedHint : ""
+                <label
+                  className={`${styles.floatingLabel} ${
+                    isFieldActive(sotkasInput) ? styles.activeLabel : ""
                   }`}
                 >
                   сотки {sotkasInput && `| ${convertSotkasToMeters(sotkasInput)} метров`}
-                </p>
+                </label>
                 <p
                   className={`${styles.sizeWidthForm__wrapper__form__field__error} ${
                     !error ? styles.hidden : ""
