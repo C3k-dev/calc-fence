@@ -29,6 +29,11 @@
     &__right {
         padding-right: 8px;
         &__delete {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: none;
             background: none;
             border: none;
