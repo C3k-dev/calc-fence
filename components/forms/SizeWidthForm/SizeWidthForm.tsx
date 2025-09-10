@@ -2,17 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./style.module.scss";
-import Icon from "@/components/Icon/Icon";
+import SelectButton from "@/components/buttons/SelectButton/SelectButton";
 
 interface SizeWidthFormProps {
   widthMeters: string;
   onChange: (newSize: { width: string }) => void;
 }
 
-const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
-  widthMeters,
-  onChange,
-}) => {
+const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [unit, setUnit] = useState<"meters" | "sotkas">("meters");
   const [metersInput, setMetersInput] = useState("");
@@ -23,9 +20,8 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
   /** Убираем все нецифры */
   const onlyDigits = (value: string) => value.replace(/\D/g, "");
 
-  /** Форматирование: 1000 → "1 000" */
-  const formatNumber = (value: string) =>
-    value ? Number(value).toLocaleString("ru-RU") : "";
+  /** Форматирование числа 1000 → "1 000" */
+  const formatNumber = (value: string) => (value ? Number(value).toLocaleString("ru-RU") : "");
 
   /** Конвертация соток в метры */
   const convertSotkasToMeters = (sotkas: string) => {
@@ -63,16 +59,12 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
     }
   };
 
-  /** Смена единицы */
-  const handleUnitChange = (selected: "meters" | "sotkas") => {
-    setUnit(selected);
-  };
+  /** Смена единицы через SelectButton */
+  const handleUnitChange = (selected: "meters" | "sotkas") => setUnit(selected);
 
   /** Синхронизация с пропсами */
   useEffect(() => {
-    if (unit === "meters") {
-      setMetersInput(widthMeters);
-    }
+    if (unit === "meters") setMetersInput(widthMeters);
   }, [widthMeters, unit]);
 
   /** Автофокус с костылём для iOS */
@@ -88,23 +80,32 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
     <div className={styles.sizeWidthForm}>
       <div className={styles.sizeWidthForm__wrapper}>
         <div className={styles.sizeWidthForm__wrapper__headline}>
-          {/* <Icon
-            width={300}
-            height={48}
-            icon={"/300/width"}
-            color="var(--background-button)"
-          /> */}
-          <p>Длина забора, включая ворота и калитки</p>
+          <p>Длина забора, без учёта ворот и калиток</p>
         </div>
 
         <div className={styles.sizeWidthForm__wrapper__form}>
+          {/* Выбор единицы */}
+          <div className={styles.sizeWidthForm__wrapper__form__format}>
+            <SelectButton
+              name="В метрах"
+              isActive={unit === "meters"}
+              onClick={() => handleUnitChange("meters")}
+            />
+            <SelectButton
+              name="В сотках"
+              isActive={unit === "sotkas"}
+              onClick={() => handleUnitChange("sotkas")}
+            />
+          </div>
+
+          {/* Поле ввода */}
           <div className={styles.sizeWidthForm__wrapper__form__field}>
             {unit === "meters" ? (
               <div>
                 <input
                   ref={inputRef}
                   className={styles.sizeWidthForm__wrapper__form__field__input}
-                  type="tel" // ✅ цифровая клавиатура
+                  type="tel"
                   inputMode="numeric"
                   value={formatNumber(metersInput)}
                   onChange={(e) => handleNumericChange(e, "meters")}
@@ -112,49 +113,26 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({
                   onBlur={() => setIsFocused(false)}
                   placeholder="0"
                 />
-                <p className={styles.sizeWidthForm__wrapper__form__field__hint}>
-                  метров
-                </p>
+                <p className={styles.sizeWidthForm__wrapper__form__field__hint}>метров</p>
                 {error && !isFocused && (
-                  <p className={styles.sizeWidthForm__wrapper__form__field__error}>
-                    {error}
-                  </p>
+                  <p className={styles.sizeWidthForm__wrapper__form__field__error}>{error}</p>
                 )}
               </div>
             ) : (
               <div>
                 <input
                   className={styles.sizeWidthForm__wrapper__form__field__input}
-                  type="tel" // ✅ цифровая клавиатура
+                  type="tel"
                   inputMode="numeric"
                   value={formatNumber(sotkasInput)}
                   onChange={(e) => handleNumericChange(e, "sotkas")}
                   placeholder="0"
                 />
                 <p className={styles.sizeWidthForm__wrapper__form__field__hint}>
-                  {convertSotkasToMeters(sotkasInput || "")} метров
+                  сотки {sotkasInput && `| ${convertSotkasToMeters(sotkasInput)} метров`}
                 </p>
               </div>
             )}
-          </div>
-
-          <div className={styles.sizeWidthForm__wrapper__form__format}>
-            <label>
-              <input
-                type="radio"
-                checked={unit === "meters"}
-                onChange={() => handleUnitChange("meters")}
-              />
-              В метрах
-            </label>
-            <label style={{ marginLeft: "10px" }}>
-              <input
-                type="radio"
-                checked={unit === "sotkas"}
-                onChange={() => handleUnitChange("sotkas")}
-              />
-              В сотках
-            </label>
           </div>
         </div>
       </div>
