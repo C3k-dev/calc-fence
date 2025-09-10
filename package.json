@@ -12,8 +12,7 @@
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "sass": "^1.92.1",
-    "@vkruglikov/react-telegram-web-app": "^2.1.9"
+    "sass": "^1.92.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
