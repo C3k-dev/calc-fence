@@ -11,7 +11,6 @@ interface TypeButtonProps {
 }
 
 function TypeButton({ id, isActive, onClick }: TypeButtonProps) {
-  // Определяем название и путь к иконке по id
   const name = id === 1 ? "Штакетник" : id === 2 ? "Профнастил" : "Неизвестно";
   const iconPath = id === 1 ? "/128/fance_type_1" : id === 2 ? "/128/fance_type_2" : "/128/default";
 

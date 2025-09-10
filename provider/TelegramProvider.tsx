@@ -27,6 +27,7 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!telegram || !telegram.initData) return;
 
     telegram.ready();
+    telegram.expand();
     telegram.disableVerticalSwipes();
     setTg(telegram);
     setIsReady(true);

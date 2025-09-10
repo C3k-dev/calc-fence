@@ -9,6 +9,9 @@ interface SizeWidthFormProps {
   onChange: (newSize: { width: string }) => void;
 }
 
+const MAX_METERS = 10000;
+const MAX_SOTKAS = 1000;
+
 const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [unit, setUnit] = useState<"meters" | "sotkas">("meters");
@@ -17,57 +20,55 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
   const [error, setError] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
-  /** Убираем все нецифры */
   const onlyDigits = (value: string) => value.replace(/\D/g, "");
-
-  /** Форматирование числа 1000 → "1 000" */
   const formatNumber = (value: string) => (value ? Number(value).toLocaleString("ru-RU") : "");
-
-  /** Конвертация соток в метры */
   const convertSotkasToMeters = (sotkas: string) => {
     if (!sotkas) return "";
     return Math.ceil(Math.sqrt(Number(sotkas) * 100)).toString();
   };
 
-  /** Общий обработчик числовых полей */
   const handleNumericChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "meters" | "sotkas"
   ) => {
-    const raw = onlyDigits(e.target.value);
+    let raw = onlyDigits(e.target.value);
 
     if (type === "meters") {
+      if (Number(raw) > MAX_METERS) raw = String(MAX_METERS);
       setMetersInput(raw);
 
-      if (!raw) {
-        setError("Введите длину");
-        onChange({ width: "" });
-        return;
-      }
-
-      const num = Number(raw);
-      if (num <= 0) setError("Длина должна быть больше 0");
-      else if (num > 10000) setError("Слишком большое значение");
+      if (!raw) setError("Введите длину");
+      else if (Number(raw) <= 0) setError("Длина должна быть больше 0");
+      else if (Number(raw) > MAX_METERS) setError(`Слишком большое значение (макс ${MAX_METERS})`);
       else setError("");
 
       onChange({ width: raw });
     }
 
     if (type === "sotkas") {
+      if (Number(raw) > MAX_SOTKAS) raw = String(MAX_SOTKAS);
       setSotkasInput(raw);
+
+      if (!raw) setError("Введите сотки");
+      else if (Number(raw) <= 0) setError("Сотки должны быть больше 0");
+      else if (Number(raw) > MAX_SOTKAS) setError(`Слишком много соток (макс ${MAX_SOTKAS})`);
+      else setError("");
+
       onChange({ width: convertSotkasToMeters(raw) });
     }
   };
 
-  /** Смена единицы через SelectButton */
-  const handleUnitChange = (selected: "meters" | "sotkas") => setUnit(selected);
+  const handleUnitChange = (selected: "meters" | "sotkas") => {
+    setUnit(selected);
+    setMetersInput("");
+    setSotkasInput("");
+    setError("");
+  };
 
-  /** Синхронизация с пропсами */
   useEffect(() => {
     if (unit === "meters") setMetersInput(widthMeters);
   }, [widthMeters, unit]);
 
-  /** Автофокус с костылём для iOS */
   useEffect(() => {
     const timer = setTimeout(() => {
       inputRef.current?.focus();
@@ -84,7 +85,6 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
         </div>
 
         <div className={styles.sizeWidthForm__wrapper__form}>
-          {/* Выбор единицы */}
           <div className={styles.sizeWidthForm__wrapper__form__format}>
             <SelectButton
               name="В метрах"
@@ -98,13 +98,14 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
             />
           </div>
 
-          {/* Поле ввода */}
           <div className={styles.sizeWidthForm__wrapper__form__field}>
             {unit === "meters" ? (
               <div>
                 <input
                   ref={inputRef}
-                  className={styles.sizeWidthForm__wrapper__form__field__input}
+                  className={`${styles.sizeWidthForm__wrapper__form__field__input} ${
+                    error ? styles.errorInput : ""
+                  }`}
                   type="tel"
                   inputMode="numeric"
                   value={formatNumber(metersInput)}
@@ -112,24 +113,49 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   placeholder="0"
+                  maxLength={5}
                 />
-                <p className={styles.sizeWidthForm__wrapper__form__field__hint}>метров</p>
-                {error && !isFocused && (
-                  <p className={styles.sizeWidthForm__wrapper__form__field__error}>{error}</p>
-                )}
+                <p
+                  className={`${styles.sizeWidthForm__wrapper__form__field__hint} ${
+                    isFocused ? styles.focusedHint : ""
+                  }`}
+                >
+                  метров
+                </p>
+                <p
+                  className={`${styles.sizeWidthForm__wrapper__form__field__error} ${
+                    !error ? styles.hidden : ""
+                  }`}
+                >
+                  {error}
+                </p>
               </div>
             ) : (
               <div>
                 <input
-                  className={styles.sizeWidthForm__wrapper__form__field__input}
+                  className={`${styles.sizeWidthForm__wrapper__form__field__input} ${
+                    error ? styles.errorInput : ""
+                  }`}
                   type="tel"
                   inputMode="numeric"
                   value={formatNumber(sotkasInput)}
                   onChange={(e) => handleNumericChange(e, "sotkas")}
                   placeholder="0"
+                  maxLength={4}
                 />
-                <p className={styles.sizeWidthForm__wrapper__form__field__hint}>
+                <p
+                  className={`${styles.sizeWidthForm__wrapper__form__field__hint} ${
+                    isFocused ? styles.focusedHint : ""
+                  }`}
+                >
                   сотки {sotkasInput && `| ${convertSotkasToMeters(sotkasInput)} метров`}
+                </p>
+                <p
+                  className={`${styles.sizeWidthForm__wrapper__form__field__error} ${
+                    !error ? styles.hidden : ""
+                  }`}
+                >
+                  {error}
                 </p>
               </div>
             )}

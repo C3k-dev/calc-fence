@@ -35,7 +35,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 12px;
         margin-bottom: 32px;
       }
 
@@ -45,6 +45,7 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+        width: 100%;
 
         &__input {
           width: 100%;
@@ -57,18 +58,18 @@
           border: none;
           outline: none;
           font-variant-numeric: tabular-nums;
-
-          // Цвет курсора (мигающей линии)
           caret-color: var(--background-button);
 
-          // Убираем стрелки в Chrome/Safari/Edge
+          &.errorInput {
+            color: var(--text-error);
+          }
+
           &::-webkit-outer-spin-button,
           &::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
           }
 
-          // Убираем стрелки в Firefox
           &[type="number"] {
             -moz-appearance: textfield;
           }
@@ -77,30 +78,55 @@
         &__hint {
           color: var(--text-secondary);
           margin-top: 8px;
-        }
-
-        // Подсветка ошибок
-        &__input.errorInput {
-          color: var(--text-error);
+          transition: all 0.3s ease;
         }
 
         &__error {
-            font-size: 14px;
-            color: var(--text-error);
-            margin-top: 4px;
-            opacity: 1;
-            max-height: 40px;
-            transition: opacity 0.3s ease, max-height 0.3s ease;
-            margin-top: 16px;
+          font-size: 14px;
+          color: var(--text-error);
+          margin-top: 16px;
+          max-height: 40px;
+          opacity: 1;
+          transition: all 0.3s ease;
+          overflow: hidden;
 
-            &.hidden {
-                opacity: 0;
-                max-height: 0;
-                overflow: hidden;
-            }
-            }
+          &.hidden {
+            opacity: 0;
+            max-height: 0;
+            margin-top: 0;
+          }
+        }
 
+        &.focused input {
+          border-bottom: 2px solid var(--background-button);
+        }
       }
     }
+  }
+}
+
+.selectButton {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: var(--background-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: var(--text-primary);
+  user-select: none;
+
+  &.active {
+    background: var(--background-button);
+    color: var(--text-on-button);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
   }
 }
