@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styles from './style.module.scss';
 
 interface SizeWidthFormProps {
   widthMeters: string; // результат в метрах
@@ -45,10 +46,12 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
   }, [widthMeters, unit]);
 
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <b>Size Width Form</b>
+    <div className={styles.sizeWidthForm}>
 
-      <div style={{ marginTop: "10px" }}>
+      <div className={styles.sizeWidthForm__headline}>
+        <p>Длина забора, исключая ворота и калитки</p>
+      </div>
+      <div>
         <label>
           <input
             type="radio"
@@ -67,11 +70,10 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
         </label>
       </div>
 
-      <div style={{ marginTop: "10px" }}>
+      <div>
         {unit === "meters" ? (
-          <label>
-            Укажите общую длину в метрах:
             <input
+              className={styles.sizeWidthForm__input}
               type="number"
               value={metersInput}
               onChange={handleMetersChange}
@@ -79,11 +81,9 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
               min="0"
               step="0.01"
             />
-          </label>
         ) : (
-          <label>
-            Укажите размер участка в сотках:
             <input
+              className={styles.sizeWidthForm__input}
               type="number"
               value={sotkasInput}
               onChange={handleSotkasChange}
@@ -91,16 +91,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
               min="0"
               step="0.01"
             />
-          </label>
         )}
-      </div>
-
-      <div style={{ marginTop: "20px", fontSize: "14px", color: "#555" }}>
-        <div>
-          {unit === "meters"
-            ? `Ширина = ${metersInput || 0} м`
-            : `метры = ceil(√(${sotkasInput || 0} × 100)) = ${convertSotkasToMeters(sotkasInput || "") || "-"}`}
-        </div>
       </div>
     </div>
   );
