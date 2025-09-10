@@ -1,5 +1,6 @@
 :root {
   --background-button: var(--tg-theme-button-color);
+  --background-secondary: var(--tg-theme-secondary-bg-color);
   --background-section: var(--tg-theme-section-bg-color);
 
   --text-secondary: var(--tg-theme-hint-color);
@@ -13,7 +14,7 @@
 }
 
 body {
-  overflow: hidden;
+  // overflow: hidden;
   height: 100vh;
   padding-top: var(--tg-content-safe-area-inset-top);
   background: var(--tg-theme-bg-color);

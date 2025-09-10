@@ -1,0 +1,36 @@
+.cutCell {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &__icon {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        &__info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            &__name {}
+            &__size {
+                color: var(--text-secondary);
+            }
+        }
+    }
+    &__right {
+        &__delete {
+            background-color: none;
+            background: none;
+            border: none;
+            outline: none;
+        }
+    }
+}
