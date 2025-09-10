@@ -5,6 +5,7 @@
     padding: 16px;
     aspect-ratio: 1 / 1;
     border-radius: 16px;
+    overflow: hidden;
 
     &__background {
         position: absolute;
@@ -28,5 +29,9 @@
 }
 
 .active {
+    border: 1px solid var(--background-button);;
+}
+.activeBackground {
     background-color: var(--background-button);
+    opacity: .15;
 }

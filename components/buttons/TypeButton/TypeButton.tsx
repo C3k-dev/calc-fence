@@ -15,7 +15,7 @@ function TypeButton({ name, isActive, onClick }: TypeButtonProps) {
       className={`${styles.typeButton} ${isActive ? styles.active : ''}`}
       onClick={onClick}
     >
-      <div className={styles.typeButton__background} />
+    <div className={`${styles.typeButton__background} ${isActive ? styles.active : ''}`} />
       <div className={styles.typeButton__wrapper}>
         <p>{name}</p>
       </div>

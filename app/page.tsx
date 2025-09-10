@@ -125,13 +125,13 @@ export default function Home() {
         <GapForm fenceType={size.type} gap={size.gap} onChange={newGap => setSize(prev => ({ ...prev, gap: newGap }))} />
       )}
 
-      <div style={{ marginTop: "30px", borderTop: "1px solid #ccc", paddingTop: "20px" }}>
+      {/* <div style={{ marginTop: "30px", borderTop: "1px solid #ccc", paddingTop: "20px" }}>
         <b>Выбранные параметры:</b>
         <div><b>Тип:</b> {size.type || "-"}</div>
         <div><b>Длина:</b> {size.width || "-"} метров</div>
         <div><b>Высота:</b> {size.height || "-"} метров</div>
         {size.type === "Штакетник" && <div><b>Зазор:</b> {size.gap || "-"} см</div>}
-      </div>
+      </div> */}
     </div>
   );
 }
