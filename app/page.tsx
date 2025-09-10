@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import TypeForm from "@/components/forms/TypeForm/TypeForm";
 import SizeWidthForm from "@/components/forms/SizeWidthForm/SizeWidthForm";
 import SizeHeightForm from "@/components/forms/SizeHeightForm/SizeHeightForm";
@@ -22,53 +22,60 @@ export default function Home() {
     height: "",
     gap: "",
   });
-
   const [step, setStep] = useState(0);
   const [tg, setTg] = useState<TelegramWebApps.WebApp | null>(null);
 
-  const isStepValid = () => {
-    switch (step) {
-      case 0: return !!size.type;
-      case 1: return !!size.width && Number(size.width) > 0;
-      case 2: return !!size.height && Number(size.height) >= 1 && Number(size.height) <= 5;
-      case 3: return size.type !== "Штакетник" || (size.gap !== "" && Number(size.gap) >= -3 && Number(size.gap) <= 7);
+  // Ref для актуального состояния
+  const stepRef = useRef(step);
+  const sizeRef = useRef(size);
+
+  useEffect(() => { stepRef.current = step; }, [step]);
+  useEffect(() => { sizeRef.current = size; }, [size]);
+
+  const isStepValid = (s: SizeState, st: number) => {
+    switch (st) {
+      case 0: return !!s.type;
+      case 1: return !!s.width && Number(s.width) > 0;
+      case 2: return !!s.height && Number(s.height) >= 1 && Number(s.height) <= 5;
+      case 3: return s.type !== "Штакетник" || (s.gap !== "" && Number(s.gap) >= -3 && Number(s.gap) <= 7);
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (isStepValid()) setStep(step + 1);
+    if (isStepValid(sizeRef.current, stepRef.current)) {
+      setStep(prev => prev + 1);
+    }
   };
 
   const handleBack = () => {
-    switch (step) {
+    switch (stepRef.current) {
       case 1: setSize(prev => ({ ...prev, width: "" })); break;
       case 2: setSize(prev => ({ ...prev, height: "" })); break;
       case 3: setSize(prev => ({ ...prev, gap: "" })); break;
     }
-    if (step > 0) setStep(step - 1);
+    if (stepRef.current > 0) setStep(prev => prev - 1);
   };
 
   // Инициализация кнопок один раз
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const telegram = window.Telegram?.WebApp;
     if (!telegram) return;
 
     telegram.ready();
     setTg(telegram);
 
-    // MainButton — один раз
+    // MainButton
     if (telegram.MainButton) {
       telegram.MainButton.setText("Продолжить").show();
 
       telegram.MainButton.onClick(() => {
-        if (isStepValid()) handleNext();
+        handleNext(); // использует актуальные значения через Ref
       });
     }
 
-    // SecondaryButton — один раз
+    // SecondaryButton
     if (telegram.SecondaryButton) {
       telegram.SecondaryButton.onClick(() => handleBack());
     }
@@ -80,8 +87,9 @@ export default function Home() {
 
     // MainButton
     if (tg.MainButton) {
-      const color = isStepValid() ? tg.themeParams.button_color : "#ccc";
-      tg.MainButton.setParams({ color, text: "Продолжить", is_active: true, is_visible: true }).show();
+      const valid = isStepValid(size, step);
+      const color = valid ? tg.themeParams.button_color : "#ccc";
+      tg.MainButton.setParams({ color, text: "Продолжить", is_active: valid, is_visible: true }).show();
     }
 
     // SecondaryButton
@@ -105,30 +113,16 @@ export default function Home() {
   return (
     <div className={styles.page}>
       {step === 0 && (
-        <TypeForm
-          type={size.type}
-          onChange={newType => setSize(prev => ({ ...prev, type: newType }))}
-        />
+        <TypeForm type={size.type} onChange={newType => setSize(prev => ({ ...prev, type: newType }))} />
       )}
       {step === 1 && (
-        <SizeWidthForm
-          widthMeters={size.width}
-          onChange={newSize => setSize(prev => ({ ...prev, ...newSize }))}
-        />
+        <SizeWidthForm widthMeters={size.width} onChange={newSize => setSize(prev => ({ ...prev, ...newSize }))} />
       )}
       {step === 2 && (
-        <SizeHeightForm
-          height={size.height}
-          fenceType={size.type}
-          onChange={newHeight => setSize(prev => ({ ...prev, ...newHeight }))}
-        />
+        <SizeHeightForm height={size.height} fenceType={size.type} onChange={newHeight => setSize(prev => ({ ...prev, ...newHeight }))} />
       )}
       {step === 3 && size.type === "Штакетник" && (
-        <GapForm
-          fenceType={size.type}
-          gap={size.gap}
-          onChange={newGap => setSize(prev => ({ ...prev, gap: newGap }))}
-        />
+        <GapForm fenceType={size.type} gap={size.gap} onChange={newGap => setSize(prev => ({ ...prev, gap: newGap }))} />
       )}
 
       <div style={{ marginTop: "30px", borderTop: "1px solid #ccc", paddingTop: "20px" }}>
