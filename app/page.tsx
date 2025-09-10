@@ -49,7 +49,7 @@ export default function Home() {
     if (step > 0) setStep(step - 1);
   };
 
-  // Инициализация Telegram WebApp и кнопок
+  // Инициализация кнопок один раз
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -63,32 +63,38 @@ export default function Home() {
     if (telegram.MainButton) {
       telegram.MainButton.setText("Продолжить").show();
 
-      const onClickMain = () => {
-        handleNext(); // проверка внутри handleNext()
-      };
+      telegram.MainButton.onClick(() => {
+        if (isStepValid()) handleNext();
+      });
+    }
 
-      telegram.MainButton.onClick(onClickMain);
-
-      return () => {
-        telegram.MainButton.offClick(onClickMain);
-        telegram.MainButton.hide();
-      };
+    // SecondaryButton — один раз
+    if (telegram.SecondaryButton) {
+      telegram.SecondaryButton.onClick(() => handleBack());
     }
   }, []);
 
-  // Обновление цвета MainButton и состояния SecondaryButton
+  // Обновление параметров кнопок при изменении step/size
   useEffect(() => {
-    if (!tg || !tg.MainButton) return;
+    if (!tg) return;
 
-    const mainColor = isStepValid() ? tg.themeParams.button_color : "#ccc";
-    tg.MainButton.setParams({ color: mainColor });
+    // MainButton
+    if (tg.MainButton) {
+      const color = isStepValid() ? tg.themeParams.button_color : "#ccc";
+      tg.MainButton.setParams({ color, text: "Продолжить", is_active: true, is_visible: true }).show();
+    }
 
     // SecondaryButton
     if (tg.SecondaryButton) {
       if (step > 0) {
         tg.SecondaryButton
-          .setText("Назад")
-          .setParams({ is_visible: true, is_active: true, color: tg.themeParams.bottom_bar_bg_color })
+          .setParams({
+            text: "Назад",
+            color: tg.themeParams.bottom_bar_bg_color,
+            is_visible: true,
+            is_active: true,
+            position: "left",
+          })
           .show();
       } else {
         tg.SecondaryButton.hide();
