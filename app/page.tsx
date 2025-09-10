@@ -49,6 +49,7 @@ export default function Home() {
     if (step > 0) setStep(step - 1);
   };
 
+  // Инициализация Telegram WebApp и кнопок
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -58,13 +59,14 @@ export default function Home() {
     telegram.ready();
     setTg(telegram);
 
-    // Настраиваем MainButton один раз
+    // MainButton — один раз
     if (telegram.MainButton) {
       telegram.MainButton.setText("Продолжить").show();
 
       const onClickMain = () => {
-        if (isStepValid()) handleNext();
+        handleNext(); // проверка внутри handleNext()
       };
+
       telegram.MainButton.onClick(onClickMain);
 
       return () => {
@@ -74,15 +76,12 @@ export default function Home() {
     }
   }, []);
 
-  // Обновляем состояние MainButton при изменении step/size
+  // Обновление цвета MainButton и состояния SecondaryButton
   useEffect(() => {
     if (!tg || !tg.MainButton) return;
 
-    if (isStepValid()) {
-      tg.MainButton.enable().setParams({ color: tg.themeParams.button_color });
-    } else {
-      tg.MainButton.disable().setParams({ color: "#ccc" }); // серый
-    }
+    const mainColor = isStepValid() ? tg.themeParams.button_color : "#ccc";
+    tg.MainButton.setParams({ color: mainColor });
 
     // SecondaryButton
     if (tg.SecondaryButton) {
