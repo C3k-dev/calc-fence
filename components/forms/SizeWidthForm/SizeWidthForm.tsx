@@ -80,7 +80,7 @@ const SizeWidthForm: React.FC<SizeWidthFormProps> = ({ widthMeters, onChange }) 
     <div className={styles.sizeWidthForm}>
       <div className={styles.sizeWidthForm__wrapper}>
         <div className={styles.sizeWidthForm__wrapper__headline}>
-          <p>Длина забора, без учёта ворот и калиток</p>
+          <p>Длина забора, c учётом ворот и калиток</p>
         </div>
 
         <div className={styles.sizeWidthForm__wrapper__form}>
