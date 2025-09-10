@@ -1,0 +1,32 @@
+.typeButton {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    aspect-ratio: 1 / 1;
+    border-radius: 16px;
+
+    &__background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.active {
+    background-color: var(--background-button);
+}

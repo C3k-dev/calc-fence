@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import TypeButton from "@/components/buttons/TypeButton/TypeButton";
+import React, { useState, useEffect } from "react";
+import styles from './style.module.scss';
 
 interface TypeFormProps {
   type: string;
@@ -6,40 +8,31 @@ interface TypeFormProps {
 }
 
 const TypeForm: React.FC<TypeFormProps> = ({ type, onChange }) => {
-  const handleSelect = (selectedType: string) => {
+  const [selectedType, setSelectedType] = useState<string>("Штакетник");
+
+  // Инициализируем родительский state дефолтным значением
+  useEffect(() => {
     onChange(selectedType);
+  }, []);
+
+  const handleSelect = (newType: string) => {
+    setSelectedType(newType);
+    onChange(newType);
   };
 
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <b>Выберите тип забора:</b>
-      <div style={{ marginTop: "10px" }}>
-        <button
-          style={{
-            marginRight: "10px",
-            backgroundColor: type === "Штакетник" ? "#4caf50" : "#eee",
-            color: type === "Штакетник" ? "#fff" : "#000",
-            border: "1px solid #ccc",
-            padding: "5px 10px",
-            cursor: "pointer",
-          }}
+    <div className={styles.typeForm}>
+      <div className={styles.typeForm__buttons}>
+        <TypeButton
+          name="Штакетник"
+          isActive={selectedType === "Штакетник"}
           onClick={() => handleSelect("Штакетник")}
-        >
-          Штакетник
-        </button>
-
-        <button
-          style={{
-            backgroundColor: type === "Профлист" ? "#4caf50" : "#eee",
-            color: type === "Профлист" ? "#fff" : "#000",
-            border: "1px solid #ccc",
-            padding: "5px 10px",
-            cursor: "pointer",
-          }}
-          onClick={() => handleSelect("Профлист")}
-        >
-          Профлист
-        </button>
+        />
+        <TypeButton
+          name="Профнастил"
+          isActive={selectedType === "Профнастил"}
+          onClick={() => handleSelect("Профнастил")}
+        />
       </div>
     </div>
   );
