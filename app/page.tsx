@@ -6,7 +6,7 @@ import SizeWidthForm from "@/components/forms/SizeWidthForm/SizeWidthForm";
 import SizeHeightForm from "@/components/forms/SizeHeightForm/SizeHeightForm";
 import GapForm from "@/components/forms/GapForm/GapForm";
 import styles from "./page.module.scss";
-import { useTelegram } from "@/provider/TelegramProvider";
+import { TelegramWebApps } from "@/provider/telegram-web-app";
 
 interface SizeState {
   type: string;
@@ -24,7 +24,7 @@ export default function Home() {
   });
 
   const [step, setStep] = useState(0);
-  const { tg, isReady } = useTelegram();
+  const [tg, setTg] = useState<TelegramWebApps.WebApp | null>(null);
 
   const isStepValid = () => {
     switch (step) {
@@ -41,7 +41,6 @@ export default function Home() {
   };
 
   const handleBack = () => {
-    // Сброс текущего шага
     switch (step) {
       case 1: setSize(prev => ({ ...prev, width: "" })); break;
       case 2: setSize(prev => ({ ...prev, height: "" })); break;
@@ -50,15 +49,23 @@ export default function Home() {
     if (step > 0) setStep(step - 1);
   };
 
-  // Управление MainButton (Продолжить)
+  // Инициализация Telegram WebApp и кнопок
   useEffect(() => {
-    if (!isReady || !tg?.MainButton) return;
+    if (typeof window === "undefined") return;
 
+    const telegram = window.Telegram?.WebApp;
+    if (!telegram) return;
+
+    telegram.ready();
+    setTg(telegram);
+
+    // MainButton
     const updateMainButton = () => {
+      if (!telegram.MainButton) return;
       if (isStepValid()) {
-        tg.MainButton.setText("Продолжить").enable().show();
+        telegram.MainButton.setText("Продолжить").enable().show();
       } else {
-        tg.MainButton.setText("Заполните поле").disable().show();
+        telegram.MainButton.setText("Заполните поле").disable().show();
       }
     };
 
@@ -66,74 +73,63 @@ export default function Home() {
       if (isStepValid()) handleNext();
     };
 
-    tg.MainButton.onClick(onClickMain);
+    telegram.MainButton.onClick(onClickMain);
     updateMainButton();
 
-    return () => {
-      tg.MainButton.offClick(onClickMain);
-      tg.MainButton.hide();
-    };
-  }, [isReady, tg, step, size]);
-
-  // Управление SecondaryButton (Назад)
-  useEffect(() => {
-    if (!isReady || !tg?.SecondaryButton) return;
-
+    // SecondaryButton
     const updateBackButton = () => {
+      if (!telegram.SecondaryButton) return;
       if (step > 0) {
-        tg.SecondaryButton
+        telegram.SecondaryButton
           .setText("Назад")
           .setParams({ is_visible: true, is_active: true, position: "left" })
           .show();
       } else {
-        tg.SecondaryButton.hide();
+        telegram.SecondaryButton.hide();
       }
     };
 
     const onClickBack = () => handleBack();
-
-    tg.SecondaryButton.onClick(onClickBack);
+    telegram.SecondaryButton.onClick(onClickBack);
     updateBackButton();
 
     return () => {
-      tg.SecondaryButton.offClick(onClickBack);
-      tg.SecondaryButton.hide();
+      telegram.MainButton.offClick(onClickMain);
+      telegram.MainButton.hide();
+      telegram.SecondaryButton.offClick(onClickBack);
+      telegram.SecondaryButton.hide();
     };
-  }, [isReady, tg, step]);
+  }, [step, size]);
 
   return (
     <div className={styles.page}>
       {step === 0 && (
         <TypeForm
           type={size.type}
-          onChange={(newType) => setSize(prev => ({ ...prev, type: newType }))}
+          onChange={newType => setSize(prev => ({ ...prev, type: newType }))}
         />
       )}
-
       {step === 1 && (
         <SizeWidthForm
           widthMeters={size.width}
-          onChange={(newSize) => setSize(prev => ({ ...prev, ...newSize }))}
+          onChange={newSize => setSize(prev => ({ ...prev, ...newSize }))}
         />
       )}
-
       {step === 2 && (
         <SizeHeightForm
           height={size.height}
           fenceType={size.type}
-          onChange={(newHeight) => setSize(prev => ({ ...prev, ...newHeight }))}
+          onChange={newHeight => setSize(prev => ({ ...prev, ...newHeight }))}
         />
       )}
-
       {step === 3 && size.type === "Штакетник" && (
         <GapForm
           fenceType={size.type}
           gap={size.gap}
-          onChange={(newGap) => setSize(prev => ({ ...prev, gap: newGap }))}
+          onChange={newGap => setSize(prev => ({ ...prev, gap: newGap }))}
         />
       )}
 
-      {/* Информация о выбранных параметрах */}
       <div style={{ marginTop: "30px", borderTop: "1px solid #ccc", paddingTop: "20px" }}>
         <b>Выбранные параметры:</b>
         <div><b>Тип:</b> {size.type || "-"}</div>
