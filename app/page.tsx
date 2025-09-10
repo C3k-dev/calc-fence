@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TelegramWebApps } from "@/provider/telegram-web-app"; // путь к твоему d.ts
 
 export default function TelegramButtonTest() {
-  const [tg, setTg] = useState<any>(null);
+  const [tg, setTg] = useState<TelegramWebApps.WebApp | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const telegram = (window as any)?.Telegram?.WebApp;
-
+    const telegram = window.Telegram?.WebApp;
     if (!telegram) {
       console.warn("Не Telegram WebApp");
       return;
