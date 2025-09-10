@@ -22,6 +22,9 @@ const TypeForm: React.FC<TypeFormProps> = ({ type, onChange }) => {
 
   return (
     <div className={styles.typeForm}>
+      <div className={styles.typeForm__headline}>
+        <p>Калькулятор цены забора</p>
+      </div>
       <div className={styles.typeForm__buttons}>
         <TypeButton
           id={1}
@@ -33,7 +36,7 @@ const TypeForm: React.FC<TypeFormProps> = ({ type, onChange }) => {
           isActive={selectedType === "Профнастил"}
           onClick={() => handleSelect("Профнастил")}
         />
-      </div>
+      </div >
     </div>
   );
 };
