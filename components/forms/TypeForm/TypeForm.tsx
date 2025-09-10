@@ -24,12 +24,12 @@ const TypeForm: React.FC<TypeFormProps> = ({ type, onChange }) => {
     <div className={styles.typeForm}>
       <div className={styles.typeForm__buttons}>
         <TypeButton
-          name="Штакетник"
+          id={1}
           isActive={selectedType === "Штакетник"}
           onClick={() => handleSelect("Штакетник")}
         />
         <TypeButton
-          name="Профнастил"
+          id={2}
           isActive={selectedType === "Профнастил"}
           onClick={() => handleSelect("Профнастил")}
         />
