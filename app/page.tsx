@@ -49,7 +49,6 @@ export default function Home() {
     if (step > 0) setStep(step - 1);
   };
 
-  // Инициализация Telegram WebApp и кнопок
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -59,47 +58,44 @@ export default function Home() {
     telegram.ready();
     setTg(telegram);
 
-    // MainButton
-    const updateMainButton = () => {
-      if (!telegram.MainButton) return;
-      if (isStepValid()) {
-        telegram.MainButton.setText("Продолжить").enable().show();
-      } else {
-        telegram.MainButton.setText("Заполните поле").disable().show();
-      }
-    };
+    // Настраиваем MainButton один раз
+    if (telegram.MainButton) {
+      telegram.MainButton.setText("Продолжить").show();
 
-    const onClickMain = () => {
-      if (isStepValid()) handleNext();
-    };
+      const onClickMain = () => {
+        if (isStepValid()) handleNext();
+      };
+      telegram.MainButton.onClick(onClickMain);
 
-    telegram.MainButton.onClick(onClickMain);
-    updateMainButton();
+      return () => {
+        telegram.MainButton.offClick(onClickMain);
+        telegram.MainButton.hide();
+      };
+    }
+  }, []);
+
+  // Обновляем состояние MainButton при изменении step/size
+  useEffect(() => {
+    if (!tg || !tg.MainButton) return;
+
+    if (isStepValid()) {
+      tg.MainButton.enable().setParams({ color: tg.themeParams.button_color });
+    } else {
+      tg.MainButton.disable().setParams({ color: "#ccc" }); // серый
+    }
 
     // SecondaryButton
-    const updateBackButton = () => {
-      if (!telegram.SecondaryButton) return;
+    if (tg.SecondaryButton) {
       if (step > 0) {
-        telegram.SecondaryButton
+        tg.SecondaryButton
           .setText("Назад")
-          .setParams({ is_visible: true, is_active: true, position: "left" })
+          .setParams({ is_visible: true, is_active: true, color: tg.themeParams.bottom_bar_bg_color })
           .show();
       } else {
-        telegram.SecondaryButton.hide();
+        tg.SecondaryButton.hide();
       }
-    };
-
-    const onClickBack = () => handleBack();
-    telegram.SecondaryButton.onClick(onClickBack);
-    updateBackButton();
-
-    return () => {
-      telegram.MainButton.offClick(onClickMain);
-      telegram.MainButton.hide();
-      telegram.SecondaryButton.offClick(onClickBack);
-      telegram.SecondaryButton.hide();
-    };
-  }, [step, size]);
+    }
+  }, [tg, step, size]);
 
   return (
     <div className={styles.page}>
